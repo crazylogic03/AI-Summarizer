@@ -1,6 +1,7 @@
 import streamlit as st
 from groq import Groq
 import os
+from PyPDF2 import PdfReader
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -18,6 +19,7 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
+fileUpload =st.file_uploader("Upload your .pdf file here",type=['pdf'])
 text = st.text_area("Enter text to summarize", height=220)
 
 summary_type = st.selectbox(
@@ -29,12 +31,35 @@ def prompt(text,summary_type):
     if summary_type=="Brief":
         return f"Summarize the following text briefly:\n\n{text}"
     elif summary_type=="Detailed":
-        return f"Summarize the following text Detailed:\n\n{text}"
+        return f"Provide a detailed summary of the following text:\n\n{text}"
     else:
         return f"Summarize the following text in bullet points:\n\n{text}"
+    
+def pdf_to_text(fileUpload):
+    reader = PdfReader(fileUpload)
+    pdfText = ""
+    for page in reader.pages:
+        extracted = page.extract_text()
+        if extracted:
+            pdfText += extracted + "\n"
+
+    return pdfText
+
 if st.button("Summarize"):
-    if not text:
-        st.warning("Please enter some text.")
+    finalInput =""
+
+    if fileUpload is not None:
+        try:
+            finalInput = pdf_to_text(fileUpload)
+        except Exception as e:
+            st.error(f"Failed to read PDF: {e}")
+            st.stop()
+    else:
+        finalInput = text
+
+    if not finalInput:
+        st.warning("Please upload a PDF or enter some text.")
+        st.stop()
     else:
         try:
             with st.spinner("Generating summary..."):
@@ -43,7 +68,7 @@ if st.button("Summarize"):
                     messages=[
                         {
                             "role": "user",
-                            "content": prompt(text, summary_type)
+                            "content": prompt(finalInput, summary_type)
                         }
                     ],
                     temperature=0.5
