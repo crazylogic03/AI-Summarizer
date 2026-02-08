@@ -37,8 +37,10 @@ The application allows users to upload PDF files or paste text and generate summ
 └── README.md
 
 
+---
 
-⚙️ Setup Instructions
+## SetUp Instructions
+
 1. Clone the Repository
 
 git clone https://github.com/your-username/ai-document-summarizer.git
