@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 st.set_page_config(page_title="AISummarizer", layout="centered")
-st.title=("Docuent Summarizer")
+st.title=("Document Summarizer")
 st.write("Paste text below and choose how you want it summarized.")
 
 
